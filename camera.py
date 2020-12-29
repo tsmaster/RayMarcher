@@ -7,12 +7,12 @@ import time
 
 import bdgmath
 import raymarch
-
+import sky
 
 def rayWorker(rayQueue):
     while True:
         rayTask = rayQueue.get()
-        px, py, r, scene, img, imgLock = rayTask
+        px, py, r, scene, img, imgLock, recursionDepth = rayTask
 
         #if py == 0:
         #    print(f'Working on {px}')
@@ -20,9 +20,18 @@ def rayWorker(rayQueue):
         hitObj, hitPoint, norm = raymarch.raymarch(scene, r)
 
         if hitObj is None:
-            color = calcSky(r)
+            color = sky.calcSky(r)
         else:
-            color = hitObj.evalColorAtPoint(hitPoint)
+            if hitObj.material:
+                color = hitObj.material.evalColor(
+                    hitPoint,
+                    scene.lights,
+                    norm,
+                    r.start.subVec3(hitPoint).makeUnit(),
+                    scene,
+                    recursionDepth)
+            else:
+                color = hitObj.evalColorAtPoint(hitPoint)
 
             accumLight = 0
             for light in scene.lights:
@@ -32,12 +41,14 @@ def rayWorker(rayQueue):
 
             cr, cg, cb = color
                     
-            color = (int(cr * lightFactor),
-                     int(cg * lightFactor),
-                     int(cb * lightFactor))
+            color = (cr * lightFactor,
+                     cg * lightFactor,
+                     cb * lightFactor)
+
+        iColor = tuple([int(c * 255.9) for c in color])
 
         imgLock.acquire()
-        img.putpixel((px, py), color)
+        img.putpixel((px, py), iColor)
         if py == 0:
             img.save("working.png")
         imgLock.release()
@@ -118,21 +129,6 @@ class YCamera:
         print("elapsed time:", time.time() - start_time)
 
 
-def calcSky(r):
-    hr, hg, hb = (100, 100, 200)
-    zr, zg, zb = (0, 0, 50)
-
-    rV = r.end.subVec3(r.start).makeUnit()
-    rz = rV.z()
-
-    if rz < 0:
-        return (hr, hg, hb)
-
-    return (int((zr - hr) * rz + hr),
-            int((zg - hg) * rz + hg),
-            int((zb - hb) * rz + hb))
-
-
 
 
 class FreeCamera:
@@ -153,7 +149,7 @@ class FreeCamera:
         """
         self.viewWidth = width
 
-    def renderScene(self, scene, width, height, filename):
+    def renderScene(self, scene, width, height, filename,  recursionDepth):
         img = Image.new("RGB", (width, height))
 
         aspectRatio = width / height
@@ -190,7 +186,7 @@ class FreeCamera:
 
                 r = bdgmath.Ray(self.pos, screenPos)
 
-                rayQueue.put((px, py, r, scene, img, imgLock))
+                rayQueue.put((px, py, r, scene, img, imgLock, recursionDepth))
         print("all tasks sent")
         rayQueue.join()
         print("all tasks completed")

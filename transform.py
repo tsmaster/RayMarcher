@@ -5,6 +5,8 @@ class Translate3d:
     def __init__(self, deltaVec, obj):
         self.deltaVec = deltaVec
         self.obj = obj
+        self.color = obj.color
+        self.material = None
 
     def mutatePoint(self, point):
         return point.subVec3(self.deltaVec)
@@ -19,7 +21,8 @@ class RotateX:
     def __init__(self, rxDeg, obj):
         self.rxRad = math.radians(rxDeg)
         self.obj = obj
-
+        self.material = None
+        self.color = obj.color
 
     def mutatePoint(self, point):
         r = -self.rxRad
@@ -41,6 +44,8 @@ class RotateY:
     def __init__(self, ryDeg, obj):
         self.ryRad = math.radians(ryDeg)
         self.obj = obj
+        self.material = None
+        self.color = obj.color
 
     def mutatePoint(self, point):
         r = -self.ryRad
@@ -62,6 +67,8 @@ class RotateZ:
     def __init__(self, rzDeg, obj):
         self.rzRad = math.radians(rzDeg)
         self.obj = obj
+        self.material = None
+        self.color = obj.color
 
     def mutatePoint(self, point):
         r = -self.rzRad

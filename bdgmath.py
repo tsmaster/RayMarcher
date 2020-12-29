@@ -288,3 +288,7 @@ def intersectSegments(s1v1, s1v2,
         
 def clamp(val, minVal, maxVal):
     return min(max(val, minVal), maxVal)
+
+def mapVal(val, inMin, inMax, outMin, outMax):
+    delta = (val - inMin) / (inMax - inMin)
+    return delta * (outMax - outMin) + outMin

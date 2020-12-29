@@ -22,6 +22,7 @@ class Donut:
         #self.color2 = (72, 49, 12) #"0x48310c"
         self.color1 = (180, 140, 20) # cake
         self.color2 = (200, 100, 100) # icing
+        self.color = self.color1
 
     def signedDistance(self, point):
         # distance from the z = 0 projection to the center

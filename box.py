@@ -8,7 +8,8 @@ class Box:
         self.cx = cx
         self.cy = cy
         self.cz = cz
-        self.color = (128, 100, 100)
+        self.color = (.5, .3, .3)
+        self.material = None
 
     def signedDistance(self, point):
         px, py, pz = point.components

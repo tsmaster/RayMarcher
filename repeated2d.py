@@ -7,6 +7,7 @@ class Repeated2d:
         self.xPeriod = xPeriod
         self.yPeriod = yPeriod
         self.obj = obj
+        self.material = obj.material
 
     def mutatePoint(self, point):
         px = (point.x() + 0.5 * self.xPeriod) % self.xPeriod - 0.5 * self.xPeriod
